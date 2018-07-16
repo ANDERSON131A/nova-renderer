@@ -56,6 +56,7 @@ add_subdirectory(${3RD_PARTY_DIR}/spirv-tools)
 add_subdirectory(${3RD_PARTY_DIR}/glslang)
 add_subdirectory(${3RD_PARTY_DIR}/shaderc)
 add_subdirectory(${3RD_PARTY_DIR}/profiler)
+add_subdirectory(${3RD_PARTY_DIR}/jobxx)
 
 include_directories(SYSTEM
         $ENV{VULKAN_SDK}/include
@@ -72,6 +73,7 @@ include_directories(SYSTEM
         ${3RD_PARTY_DIR}/VulkanMemoryAllocator/src
         ${3RD_PARTY_DIR}/shaderc/libshaderc/include
         ${3RD_PARTY_DIR}/profiler/include
+        ${3RD_PRATY_DIR}/jobxx/include
         )
 
 # Setup the nova-core library.
@@ -245,7 +247,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set_target_properties(nova-renderer PROPERTIES CXX_VISIBILITY_PRESET hidden)
 endif()
 
-set(COMMON_LINK_LIBS ${CMAKE_DL_LIBS} glfw ${GLFW_LIBRARIES} ${Vulkan_LIBRARIES} shaderc stdc++fs nova_profiler)
+set(COMMON_LINK_LIBS ${CMAKE_DL_LIBS} glfw ${GLFW_LIBRARIES} ${Vulkan_LIBRARIES} shaderc stdc++fs nova-profiler jobxx)
 
 add_executable(nova-test test/main.cpp ${NOVA_SOURCE})
 target_link_libraries(nova-test ${COMMON_LINK_LIBS})

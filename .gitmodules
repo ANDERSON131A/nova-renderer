@@ -46,3 +46,6 @@
 [submodule "native/src/3rdparty/spirv-headers"]
 	path = native/src/3rdparty/spirv-headers
 	url = https://github.com/KhronosGroup/SPIRV-Headers
+[submodule "native/src/3rdparty/jobxx"]
+	path = native/src/3rdparty/jobxx
+	url = https://github.com/seanmiddleditch/jobxx.git
