@@ -190,7 +190,7 @@ set(SPIRV_CROSS_SOURCE
         ${SPIRV_CROSS_ROOT}/spirv_cross_util.cpp
         ${SPIRV_CROSS_ROOT}/spirv_cross.cpp
         ${SPIRV_CROSS_ROOT}/spirv_glsl.cpp
-        dummy.cpp)
+        dummy.cpp jobs/task_executor.cpp jobs/task_executor.h)
 
 set(SPIRV_CROSS_HEADERS
         ${SPIRV_CROSS_ROOT}/spirv_cross.hpp
