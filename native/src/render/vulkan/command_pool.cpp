@@ -66,6 +66,8 @@ namespace nova {
     }
 
     void command_buffer::end_as_single_command() {
+        LOG(TRACE) << "Do we have an instance? " << (bool)nova_renderer::instance;
+
         auto context = nova_renderer::instance->get_render_context();
 
         buffer.end();
@@ -81,9 +83,7 @@ namespace nova {
         graphics_queue.submit(1, &submit_info, fences[0]);
         LOG(TRACE) << "Submitted buffer, it'll signal the fence when done";
 
-        std::vector<vk::Fence> wait_fences;
-        wait_fences.push_back(fences[0]);
-        context->device.waitForFences(wait_fences, VK_TRUE, ~0ull);
+        context->device.waitForFences({fences[0]}, VK_TRUE, ~0ull);
         LOG(TRACE) << "Waited for the fence";
 
         context->command_buffer_pool->free(*this);

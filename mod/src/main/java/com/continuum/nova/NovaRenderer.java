@@ -431,6 +431,9 @@ public class NovaRenderer implements IResourceManagerReloadListener {
 
     private void sendLightmapTexture(DynamicTexture lightmapTexture) {
         int[] data = lightmapTexture.getTextureData();
+        LOG.warn("Sending lm texture with data length {} with width={} and height={}", data.length,
+                ((INovaDynamicTexture) lightmapTexture).getWidth(),
+                ((INovaDynamicTexture) lightmapTexture).getHeight());
         _native.send_lightmap_texture(data, data.length, ((INovaDynamicTexture) lightmapTexture).getWidth(), ((INovaDynamicTexture) lightmapTexture).getHeight());
     }
 
