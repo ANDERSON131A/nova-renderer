@@ -86,7 +86,7 @@ namespace nova {
     }
 
     void mesh_store::remove_gui_render_objects() {
-        remove_render_objects([](auto& render_obj) {return render_obj.type == geometry_type::gui || render_obj.type == geometry_type::text;});
+        remove_render_objects([](auto& render_obj) {return render_obj.type == geometry_type::gui || render_obj.type == geometry_type::text || render_obj.type == geometry_type::panorama;});
     }
 
     void mesh_store::remove_render_objects(std::function<bool(render_object&)> filter) {

@@ -94,21 +94,21 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
             float f1 = ((float)(j / 8) / 8.0F - 0.5F) / 64.0F;
             float f2 = 0.0F;
             //matrixStack.peek().translate(f, f1, 0.0F);
-            matrixStack.peek().rotate(MathHelper.sin(((float)this.panoramaTimer + partialTicks) / 400.0F) * 25.0F/180.0F*((float)Math.PI) + 20.0F/180.0F*((float)Math.PI), 1.0F, 0.0F, 0.0F);
-            matrixStack.peek().rotate(-((float)this.panoramaTimer + partialTicks) * 0.1F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
+            matrixStack.peek().rotate((MathHelper.sin(((float)this.panoramaTimer + partialTicks) / 400.0F) * 25.0F/180.0F*((float)Math.PI) + 20.0F/180.0F*((float)Math.PI)), 1.0F, 0.0F, 0.0F);
+            matrixStack.peek().rotate(-((float)this.panoramaTimer + partialTicks) * 0.1F/180.0F*((float)Math.PI)*100.0f, 0.0F, 1.0F, 0.0F);
             for (int k = 0; k <6; ++k)
             {
                 matrixStack.push(matrixStack.peek().mul(new Mat4()));
 
                 float shift=cubeSize;
                 //matrixStack.peek().translate(0.0f,0.0F, -shift);
-                if (k == 1)
+                if (k == 2)
                 {
-                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
+                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
                 }
 
-                if (k == 2)
+                if (k == 1)
                 {
                     matrixStack.peek().rotate(180.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
@@ -116,7 +116,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
 
                 if (k == 3)
                 {
-                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
+                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
                 }
 
@@ -145,53 +145,48 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
                 Color vertexColor = new Color(255, 255, 255, 255);
 
 
-                Mat4 modelViewProj = matrixStack.peek();//projmat.mul(matrixStack.peek());
+                Mat4 modelViewProj = matrixStack.peek();
+                Vec4 firstVertice = (modelViewProj.mul(new Vec4(-cubeSize,-cubeSize,cubeSize,1.0f)));
+                Vec4 secondVertice = (modelViewProj.mul(new Vec4(cubeSize,-cubeSize,cubeSize,1.0f)));
+                Vec4 thirdVertice = (modelViewProj.mul(new Vec4(-cubeSize,cubeSize,cubeSize,1.0f)));
+                Vec4 fourthVertice = (modelViewProj.mul(new Vec4(cubeSize,cubeSize,cubeSize,1.0f)));
 
-/*Vec4 firstVertice =   modelViewProj.mul(new Vec4(-cubeSize,-cubeSize,0.0f,1.0f));
-Vec4 secondVertice =   modelViewProj.mul(new Vec4(cubeSize,-cubeSize,0.0f,1.0f));
-Vec4 thirdVertice =   modelViewProj.mul(new Vec4(-cubeSize,cubeSize,0.0f,1.0f));
-Vec4 fourthVertice =   modelViewProj.mul(new Vec4(cubeSize,cubeSize,0.0f,1.0f));*/
-Vec4 firstVertice = (modelViewProj.mul(new Vec4(-cubeSize,-cubeSize,cubeSize,1.0f)));
-Vec4 secondVertice = (modelViewProj.mul(new Vec4(cubeSize,-cubeSize,cubeSize,1.0f)));
-Vec4 thirdVertice = (modelViewProj.mul(new Vec4(-cubeSize,cubeSize,cubeSize,1.0f)));
-Vec4 fourthVertice = (modelViewProj.mul(new Vec4(cubeSize,cubeSize,cubeSize,1.0f)));
+                Integer[] indexBuffer = new Integer[]{2, 1, 0, 3, 1, 2};
+                float oX=0.0f;
+                float oY=0.0f;
+                float theScale=1.0f;//0.1f;
+                float zS=0.01f;
+                float shiftGUI=0.99f;//(((float) mouseX)-((float) mouseY))/100.0f;
+                NovaDraw.Vertex[] vertices = new NovaDraw.Vertex[]{
+                        new NovaDraw.Vertex(
+                                firstVertice.x*theScale+oX, firstVertice.y*theScale+oY,firstVertice.z*theScale,
+                                0, 0,
+                                vertexColor
+                        ),
+                        new NovaDraw.Vertex(
+                                secondVertice.x*theScale+oX, secondVertice.y*theScale+oY,secondVertice.z*theScale,
+                                1, 0,
+                                vertexColor
+                        ),
+                        new NovaDraw.Vertex(
+                                thirdVertice.x*theScale+oX, thirdVertice.y*theScale+oY,thirdVertice.z*theScale,
+                                0, 1,
+                                vertexColor
+                        ),
+                        new NovaDraw.Vertex(
+                                fourthVertice.x*theScale+oX, fourthVertice.y*theScale+oY,fourthVertice.z*theScale,
+                                1, 1,
+                                vertexColor
+                        )
+                };
+                NovaDraw.resetMatrix();
+                //NovaDraw.draw(TITLE_PANORAMA_PATHS[k],indexBuffer,vertices);
+                NovaDraw.draw(TITLE_PANORAMA_PATHS[k],indexBuffer,vertices);
+                matrixStack.pop();
 
-Integer[] indexBuffer = new Integer[]{2, 1, 0, 3, 1, 2};
-float oX=0.0f;
-float oY=0.0f;
-float theScale=0.5f;//0.1f;
-float zS=0.01f;
-float shiftGUI=0.99f;//(((float) mouseX)-((float) mouseY))/100.0f;
-NovaDraw.Vertex[] vertices = new NovaDraw.Vertex[]{
-        new NovaDraw.Vertex(
-                firstVertice.x*theScale+oX, firstVertice.y*theScale+oY,firstVertice.z*theScale,
-                0, 0,
-                vertexColor
-        ),
-        new NovaDraw.Vertex(
-                secondVertice.x*theScale+oX, secondVertice.y*theScale+oY,secondVertice.z*theScale,
-                1, 0,
-                vertexColor
-        ),
-        new NovaDraw.Vertex(
-                thirdVertice.x*theScale+oX, thirdVertice.y*theScale+oY,thirdVertice.z*theScale,
-                0, 1,
-                vertexColor
-        ),
-        new NovaDraw.Vertex(
-                fourthVertice.x*theScale+oX, fourthVertice.y*theScale+oY,fourthVertice.z*theScale,
-                1, 1,
-                vertexColor
-        )
-};
-
-//NovaDraw.draw(TITLE_PANORAMA_PATHS[k],indexBuffer,vertices);
-NovaDraw.draw(TITLE_PANORAMA_PATHS[k],indexBuffer,vertices);
-matrixStack.pop();
-
-            GlStateManager.colorMask(true, true, true, false);
+                GlStateManager.colorMask(true, true, true, false);
+            }
         }
-    }
 
     }
 
