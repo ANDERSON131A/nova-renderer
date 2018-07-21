@@ -98,17 +98,17 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
             matrixStack.peek().rotate(-((float)this.panoramaTimer + partialTicks) * 0.1F/180.0F*((float)Math.PI)*100.0f, 0.0F, 1.0F, 0.0F);
             for (int k = 0; k <6; ++k)
             {
-                matrixStack.push(matrixStack.peek().mul(new Mat4()));
+                matrixStack.push(new Mat4().mul(matrixStack.peek()));
 
                 float shift=cubeSize;
                 //matrixStack.peek().translate(0.0f,0.0F, -shift);
-                if (k == 2)
+                if (k == 1)
                 {
                     matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
                 }
 
-                if (k == 1)
+                if (k == 2)
                 {
                     matrixStack.peek().rotate(180.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
