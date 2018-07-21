@@ -1,8 +1,6 @@
 package com.continuum.nova.mixin.gui;
 
 import com.continuum.nova.gui.NovaDraw;
-import glm.mat._4.Mat4;
-import glm.vec._4.Vec4;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
@@ -22,6 +20,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.Stack;
+import glm.Glm;
+import glm.mat._4.Mat4;
+import glm.vec._4.Vec4;
 
 @Mixin(GuiMainMenu.class)
 public abstract class MixinGuiMainMenu extends GuiScreen {
@@ -65,104 +66,133 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
     }
 
     /**
-     * @author Janrupf
-     * @reason Change render code to nova
-     * @inheritDoc
+     * Draws the main menu panorama
      */
+     /**
+      * @author Cole Kissane
+      * @reason PANORAMA
+      */
     @Overwrite
-    private void drawPanorama(int mouseX, int mouseY, float partialTicks) {
-        // Unused?! Mat4 projmat = Glm.perspective_(120.0F, 1.0F, 0.05F, 10.0F);
+    private void drawPanorama(int mouseX, int mouseY, float partialTicks)
+    {
+        float sizeW=(float) Minecraft.getMinecraft().displayWidth;
+        float sizeH=(float) Minecraft.getMinecraft().displayHeight;
+        Mat4 projmat = Glm.perspective_(((float) mouseX/sizeW)*((float)Math.PI), 1.0f, 0.05F, 10.0F);
 
         Stack<Mat4> matrixStack = new Stack<>();
         matrixStack.push(new Mat4());
 
-        matrixStack.peek().rotate(180.0F, 1.0F, 0.0F, 0.0F);
-        matrixStack.peek().rotate(90.0F, 0.0F, 0.0F, 1.0F);
+        //matrixStack.peek().rotate(180.0F, 1.0F, 0.0F, 0.0F);
+        //matrixStack.peek().rotate(90.0F, 0.0F, 0.0F, 1.0F);
 
+        float cubeSize=1.0f;//sizeW/4.0f;
+        for (int j = 0; j < 1; ++j)
+        {
+            matrixStack.push(matrixStack.peek().mul(new Mat4()));
 
-        for (int j = 0; j < 64; ++j) {
-            matrixStack.push(matrixStack.peek());
-
-            float f = ((float) (j % 8) / 8.0F - 0.5F) / 64.0F;
-            float f1 = ((float) (j / 8) / 8.0F - 0.5F) / 64.0F;
+            float f = ((float)(j % 8) / 8.0F - 0.5F) / 64.0F;
+            float f1 = ((float)(j / 8) / 8.0F - 0.5F) / 64.0F;
             float f2 = 0.0F;
-            matrixStack.peek().translate(f, f1, 0.0F);
-            matrixStack.peek().rotate(MathHelper.sin(((float) this.panoramaTimer + partialTicks) / 400.0F) * 25.0F + 20.0F, 1.0F, 0.0F, 0.0F);
-            matrixStack.peek().rotate(-((float) this.panoramaTimer + partialTicks) * 0.1F, 0.0F, 1.0F, 0.0F);
+            //matrixStack.peek().translate(f, f1, 0.0F);
+            matrixStack.peek().rotate(MathHelper.sin(((float)this.panoramaTimer + partialTicks) / 400.0F) * 25.0F/180.0F*((float)Math.PI) + 20.0F/180.0F*((float)Math.PI), 1.0F, 0.0F, 0.0F);
+            matrixStack.peek().rotate(-((float)this.panoramaTimer + partialTicks) * 0.1F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
+            for (int k = 0; k <6; ++k)
+            {
+                matrixStack.push(matrixStack.peek().mul(new Mat4()));
 
-            for (int k = 0; k < 6; ++k) {
-                matrixStack.push(matrixStack.peek());
-
-
-                if (k == 1) {
-                    matrixStack.peek().rotate(90.0F, 0.0F, 1.0F, 0.0F);
-
-                }
-
-                if (k == 2) {
-                    matrixStack.peek().rotate(180.0F, 0.0F, 1.0F, 0.0F);
+                float shift=cubeSize;
+                //matrixStack.peek().translate(0.0f,0.0F, -shift);
+                if (k == 1)
+                {
+                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
                 }
 
-                if (k == 3) {
-                    matrixStack.peek().rotate(-90.0F, 0.0F, 1.0F, 0.0F);
+                if (k == 2)
+                {
+                    matrixStack.peek().rotate(180.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
                 }
 
-                if (k == 4) {
-                    matrixStack.peek().rotate(90.0F, 1.0F, 0.0F, 0.0F);
+                if (k == 3)
+                {
+                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
                 }
 
-                if (k == 5) {
-                    matrixStack.peek().rotate(-90.0F, 1.0F, 0.0F, 0.0F);
+                if (k == 4)
+                {
+                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 1.0F, 0.0F, 0.0F);
+                    //matrixStack.pop();
+                    //continue;
 
                 }
+
+                if (k == 5)
+                {
+                    //works?
+                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 1.0F, 0.0F, 0.0F);
+                    //matrixStack.pop();
+                    //continue;
+
+                }
+
+                //matrixStack.peek().translate(0.0f,0.0F, -shift);
+                //matrixStack.peek().translate(0.0f,0.0F, -shift);
+                //matrixStack.peek().rotate(90.0F, 1.0F, 0.0F, 0.0F);
 
                 int l = 255 / (j + 1);
-                Color vertexColor = new Color(255, 255, 255, l);
+                Color vertexColor = new Color(255, 255, 255, 255);
 
 
-                Mat4 modelViewProj = matrixStack.peek();
+                Mat4 modelViewProj = matrixStack.peek();//projmat.mul(matrixStack.peek());
 
-                Vec4 firstVertice = modelViewProj.mul(new Vec4(0, 0, 1, 1));
-                Vec4 secondVertice = modelViewProj.mul(new Vec4(0 + 356, 0, 1, 1));
-                Vec4 thirdVertice = modelViewProj.mul(new Vec4(0, 0 + 256, 1, 1));
-                Vec4 fourthVertice = modelViewProj.mul(new Vec4(0 + 256, 0 + 256, 1, 1));
+/*Vec4 firstVertice =   modelViewProj.mul(new Vec4(-cubeSize,-cubeSize,0.0f,1.0f));
+Vec4 secondVertice =   modelViewProj.mul(new Vec4(cubeSize,-cubeSize,0.0f,1.0f));
+Vec4 thirdVertice =   modelViewProj.mul(new Vec4(-cubeSize,cubeSize,0.0f,1.0f));
+Vec4 fourthVertice =   modelViewProj.mul(new Vec4(cubeSize,cubeSize,0.0f,1.0f));*/
+Vec4 firstVertice = (modelViewProj.mul(new Vec4(-cubeSize,-cubeSize,cubeSize,1.0f)));
+Vec4 secondVertice = (modelViewProj.mul(new Vec4(cubeSize,-cubeSize,cubeSize,1.0f)));
+Vec4 thirdVertice = (modelViewProj.mul(new Vec4(-cubeSize,cubeSize,cubeSize,1.0f)));
+Vec4 fourthVertice = (modelViewProj.mul(new Vec4(cubeSize,cubeSize,cubeSize,1.0f)));
 
-                Integer[] indexBuffer = new Integer[]{0, 1, 2, 2, 1, 3};
-                NovaDraw.Vertex[] vertices = new NovaDraw.Vertex[]{
-                        new NovaDraw.Vertex(
-                                firstVertice.x, firstVertice.y,
-                                0, 0,
-                                vertexColor
-                        ),
-                        new NovaDraw.Vertex(
-                                secondVertice.x, secondVertice.y,
-                                1, 0,
-                                vertexColor
-                        ),
-                        new NovaDraw.Vertex(
-                                thirdVertice.x, thirdVertice.y,
-                                0, 1,
-                                vertexColor
-                        ),
-                        new NovaDraw.Vertex(
-                                fourthVertice.x, fourthVertice.y,
-                                1, 1,
-                                vertexColor
-                        )
-                };
+Integer[] indexBuffer = new Integer[]{2, 1, 0, 3, 1, 2};
+float oX=0.0f;
+float oY=0.0f;
+float theScale=0.5f;//0.1f;
+float zS=0.01f;
+float shiftGUI=0.99f;//(((float) mouseX)-((float) mouseY))/100.0f;
+NovaDraw.Vertex[] vertices = new NovaDraw.Vertex[]{
+        new NovaDraw.Vertex(
+                firstVertice.x*theScale+oX, firstVertice.y*theScale+oY,firstVertice.z*theScale,
+                0, 0,
+                vertexColor
+        ),
+        new NovaDraw.Vertex(
+                secondVertice.x*theScale+oX, secondVertice.y*theScale+oY,secondVertice.z*theScale,
+                1, 0,
+                vertexColor
+        ),
+        new NovaDraw.Vertex(
+                thirdVertice.x*theScale+oX, thirdVertice.y*theScale+oY,thirdVertice.z*theScale,
+                0, 1,
+                vertexColor
+        ),
+        new NovaDraw.Vertex(
+                fourthVertice.x*theScale+oX, fourthVertice.y*theScale+oY,fourthVertice.z*theScale,
+                1, 1,
+                vertexColor
+        )
+};
 
-                NovaDraw.draw(TITLE_PANORAMA_PATHS[k], indexBuffer, vertices);
-                matrixStack.pop();
-
-            }
-
-            matrixStack.pop();
+//NovaDraw.draw(TITLE_PANORAMA_PATHS[k],indexBuffer,vertices);
+NovaDraw.draw(TITLE_PANORAMA_PATHS[k],indexBuffer,vertices);
+matrixStack.pop();
 
             GlStateManager.colorMask(true, true, true, false);
         }
+    }
+
     }
 
     /**
@@ -175,7 +205,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
         this.panoramaTimer += partialTicks;
 
         //GlStateManager.disableAlpha();
-        //this.renderSkybox(mouseX, mouseY, partialTicks);
+        this.drawPanorama(mouseX, mouseY, partialTicks);
         //GlStateManager.enableAlpha();
 
         int titleStartPosX = this.width / 2 - 137;
@@ -250,7 +280,6 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
                 && mouseY < this.height && Mouse.isInsideWindow()) {
             drawRect(this.widthCopyrightRest, this.height - 1, this.widthCopyrightRest + this.widthCopyright, this.height, -1);
         }
-
         if (this.openGLWarning1 != null && !this.openGLWarning1.isEmpty()) {
             drawRect(this.openGLWarningX1 - 2, this.openGLWarningY1 - 2, this.openGLWarningX2 + 2, this.openGLWarningY2 - 1, 1428160512);
             this.drawString(this.fontRenderer, this.openGLWarning1, this.openGLWarningX1, this.openGLWarningY1, -1);

@@ -1,7 +1,7 @@
 /*!
  * \brief
  *
- * \author ddubois 
+ * \author ddubois
  * \date 20-Sep-16.
  */
 
@@ -25,6 +25,7 @@ namespace nova {
     entity, \
     falling_block, \
     gui, \
+    panorama, \
     text, \
     cloud, \
     sky_decoration, \

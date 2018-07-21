@@ -86,7 +86,7 @@ public class NovaDraw {
         Float[] vertexbuffer = new Float[vertices.length * 9];
         for (int v = 0; v < vertices.length; v++) {
 
-            Vec4 transformedVertex = ModelMatrix.mul(new Vec4(vertices[v].x, vertices[v].y, currentZ, 1));
+            Vec4 transformedVertex = ModelMatrix.mul(new Vec4(vertices[v].x, vertices[v].y, vertices[v].three?vertices[v].z:currentZ, 1));
 
             vertexbuffer[v * 9] = transformedVertex.x;
             vertexbuffer[v * 9 + 1] = transformedVertex.y;
@@ -221,6 +221,8 @@ public class NovaDraw {
         // Position
         public float x;
         public float y;
+        public float z;
+        public boolean three=false;
 
         // Texture coordinate
         public float u;
@@ -239,6 +241,24 @@ public class NovaDraw {
 
             this.x = x;
             this.y = y;
+            this.z = 0;
+            this.u = u;
+            this.v = v;
+            this.r = (float) color.getRed() / 255.f;
+            this.g = (float) color.getGreen() / 255.f;
+            this.b = (float) color.getBlue() / 255.f;
+            this.a = (float) color.getAlpha() / 255.f;
+        }
+
+        public Vertex(float x, float y, float z, float u, float v, Color color) {
+            if (color == null) {
+                color = new Color(255, 255, 255);
+            }
+
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.three = true;
             this.u = u;
             this.v = v;
             this.r = (float) color.getRed() / 255.f;
