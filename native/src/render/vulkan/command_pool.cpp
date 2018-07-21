@@ -66,9 +66,10 @@ namespace nova {
     }
 
     void command_buffer::end_as_single_command() {
-        LOG(TRACE) << "Do we have an instance? " << (bool)nova_renderer::instance;
+        LOG(TRACE) << "About to end a command" << std::endl;
 
         auto context = nova_renderer::instance->get_render_context();
+        LOG(TRACE) << "Acquired render context" << std::endl;
 
         buffer.end();
 
@@ -81,11 +82,11 @@ namespace nova {
         context->device.resetFences(1, fences);
 
         graphics_queue.submit(1, &submit_info, fences[0]);
-        LOG(TRACE) << "Submitted buffer, it'll signal the fence when done";
+        LOG(TRACE) << "Submitted buffer, it'll signal the fence " << fences << " when done" << std::endl;
 
-        context->device.waitForFences({fences[0]}, VK_TRUE, ~0ull);
-        LOG(TRACE) << "Waited for the fence";
+        vk::Result result = context->device.waitForFences({fences[0]}, VK_TRUE, ~0ull);
+        LOG(TRACE) << "Waited for the fence. Waiting result: " << vk::to_string(result) << std::endl;
 
-        context->command_buffer_pool->free(*this);
+        LOG(TRACE) << "Device=" << (VkDevice)context->device << std::endl;
     }
 }

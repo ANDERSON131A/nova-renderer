@@ -90,6 +90,7 @@ namespace nova {
     }
 
     nova_renderer::~nova_renderer() {
+        LOG(DEBUG) << "Deinitting the nova renderer" << std::endl;
         // Ensure everything is done before we exit
         context->graphics_queue.waitIdle();
         LOG(TRACE) << "Waited for the GPU to be done";
@@ -181,16 +182,16 @@ namespace nova {
     void nova_renderer::execute_pass(const render_pass &pass, vk::CommandBuffer& buffer) {
         NOVA_PROFILER_SCOPE;
         if(renderpasses_by_pass.find(pass.name) == renderpasses_by_pass.end()) {
-            LOG(ERROR) << "No renderpass defined for pass " << pass.name << ". Skipping this pass";
+            LOG(DEBUG) << "No renderpass defined for pass " << pass.name << ". Skipping this pass";
             return;
         }
 
         if(pipelines_by_pass.find(pass.name) == pipelines_by_pass.end()) {
-            LOG(WARNING) << "No pipelines attached to pass " << pass.name << ". Skipping this pass";
+            LOG(DEBUG) << "No pipelines attached to pass " << pass.name << ". Skipping this pass";
             return;
         }
 
-        LOG(TRACE) << "Beginning pass " << pass.name;
+        LOG(TRACE) << "Beginning pass " << pass.name << std::endl;
 
         if(pass.texture_inputs) {
             // Transition anything that's not in shader read optimal to shader read optimal
@@ -244,25 +245,32 @@ namespace nova {
                 .setPClearValues(clear_values.data());
 
         begin_pass.setFramebuffer(framebuffer);
-        LOG(TRACE) << "Using framebuffer " << (VkFramebuffer)framebuffer;
+        LOG(TRACE) << "Using framebuffer " << (VkFramebuffer)framebuffer << std::endl;
 
         buffer.beginRenderPass(&begin_pass, vk::SubpassContents::eInline);
 
         auto& pipelines_for_pass = pipelines_by_renderpass.at(pass.name);
-        LOG(TRACE) << "Processing data in " << pipelines_for_pass.size() << " pipelines";
+        LOG(TRACE) << "Processing data in " << pipelines_for_pass.size() << " pipelines" << std::endl;
 
         for(auto& nova_pipeline : pipelines_for_pass) {
             render_pipeline(nova_pipeline, buffer);
         }
 
+        LOG(TRACE) << "Finished rendering pipelines" << std::endl;
+
         buffer.endRenderPass();
+        LOG(TRACE) << "Ended render pass" << std::endl;
 
         // Set the layouts on all the textures to the layouts tha the renderpass will use them in
         if(pass.texture_outputs) {
+            LOG(TRACE) << "Gotta update texture layouts for this pass" << std::endl;
             const auto& texture_outputs = pass.texture_outputs.value();
             const auto& textures = shader_resources->get_texture_manager();
+            LOG(TRACE) << "Updating " << texture_outputs.size() << " textures" << std::endl;
             for(const auto& attachment : texture_outputs) {
+                LOG(ERROR) << "Updating texture " << attachment.name << std::endl;
                 if(textures.is_texture_known(attachment.name)) {
+                    LOG(INFO) << "Updating layout on " << attachment.name << std::endl;
                     auto &tex = shader_resources->get_texture_manager().get_texture(attachment.name);
                     tex.set_layout(vk::ImageLayout::eColorAttachmentOptimal);
                 }
@@ -276,26 +284,27 @@ namespace nova {
             LOG(WARNING) << "No material passes assigned to pipeline " << pipeline_data.name << ". Skipping this pipeline";
             return;
         }
-        LOG(TRACE) << "Rendering pipeline " << pipeline_data.name;
+        LOG(TRACE) << "Rendering pipeline " << pipeline_data.name << std::endl;
 
         buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline_data.pipeline);
 
         const auto& material_passes = material_passes_by_pipeline.at(pipeline_data.name);
-        LOG(TRACE) << "There are " << material_passes.size() << " material passes";
+        LOG(TRACE) << "There are " << material_passes.size() << " material passes" << std::endl;
         for(const auto& mat : material_passes) {
             render_all_for_material_pass(mat, buffer, pipeline_data);
         }
+        LOG(TRACE) << "Finished rendering pipeline " << pipeline_data.name << std::endl;
     }
 
     void nova_renderer::render_all_for_material_pass(const material_pass& mat, vk::CommandBuffer &buffer, pipeline_object &pipeline) {
         NOVA_PROFILER_SCOPE;
         const auto& meshes_for_mat = meshes->get_meshes_for_material(mat.material_name);
         if(meshes_for_mat.empty()) {
-            LOG(WARNING) << "No meshes available for material " << mat.material_name;
+            LOG(TRACE) << "No meshes available for material " << mat.material_name;
             return;
         }
 
-        LOG(TRACE) << "Beginning material " << mat.material_name;
+        LOG(TRACE) << "Beginning material " << mat.material_name << std::endl;
 
         auto per_model_buffer_binding = std::string{};
 
@@ -322,7 +331,7 @@ namespace nova {
                 ss << " has nothing bound!";
             }
 
-            LOG(TRACE) << ss.str();
+            LOG(TRACE) << ss.str() << std::endl;
         }
 
         std::stringstream ss;
@@ -330,25 +339,34 @@ namespace nova {
         for(const auto& desc : mat.descriptor_sets) {
             ss << (VkDescriptorSet)desc << ", ";
         }
-        LOG(TRACE) << ss.str();
+        LOG(TRACE) << ss.str() << std::endl;
         buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline_layout, 0, mat.descriptor_sets, {});
 
-        LOG(TRACE) << "Rendering " << meshes_for_mat.size() << " things";
+        LOG(TRACE) << "Rendering " << meshes_for_mat.size() << " things" << std::endl;
         for(const auto& mesh : meshes_for_mat) {
+            LOG(TRACE) << "About to render something" << std::endl;
             render_mesh(mesh, buffer, pipeline, per_model_buffer_binding);
         }
+        LOG(TRACE) << "Finished rendering material " << mat.material_name << std::endl;
     }
 
     void nova_renderer::render_mesh(const render_object &mesh, vk::CommandBuffer &buffer, pipeline_object &pipeline_data, std::string per_model_buffer_resource) {
+        LOG(TRACE) << "Rendering a mesh" << std::endl;
         NOVA_PROFILER_SCOPE;
+        LOG(TRACE) << "Instantiated profiler object" << std::endl;
         const auto& descriptor = pipeline_data.resource_bindings[per_model_buffer_resource];
+        LOG(TRACE) << "Got the resource binding for " << per_model_buffer_resource << std::endl;
         buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline_data.layout, descriptor.set, 1, &mesh.model_matrix_descriptor, 0, nullptr);
+        LOG(TRACE) << "Told the command buffer to bind descriptor (set=" << descriptor.set << " binding=" << descriptor.binding << std::endl;
 
         buffer.bindIndexBuffer(mesh.geometry->indices, {0}, vk::IndexType::eUint32);
+        LOG(TRACE) << "Bound index buffer " << (VkBuffer)mesh.geometry->indices << std::endl;
 
         buffer.bindVertexBuffers(0, {mesh.geometry->vertex_buffer}, {0});
+        LOG(TRACE) << "Bound vertex buffer " << (VkBuffer)mesh.geometry->vertex_buffer << std::endl;
 
         buffer.drawIndexed(mesh.geometry->num_indices, 1, 0, 0, 0);
+        LOG(TRACE) << "Issued drawcall for " << mesh.geometry->num_indices << " indices" << std::endl;
     }
 
     bool nova_renderer::should_end() {

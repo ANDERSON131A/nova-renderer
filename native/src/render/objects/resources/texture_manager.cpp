@@ -339,10 +339,12 @@ namespace nova {
     }
 
     bool texture_manager::is_texture_known(const std::string &texture_name) const {
+        LOG(TRACE) << "Checking if texture " << texture_name << " is in the atlas" << std::endl;
         if(atlases.find(texture_name) != atlases.end()) {
             return true;
         }
 
+        LOG(TRACE) << "Check if the texture's in the dynamic textures map" << std::endl;
         return dynamic_tex_name_to_idx.find(texture_name) != dynamic_tex_name_to_idx.end();
     }
 
