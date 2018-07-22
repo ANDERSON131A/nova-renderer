@@ -77,15 +77,15 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
     {
         float sizeW=(float) Minecraft.getMinecraft().displayWidth;
         float sizeH=(float) Minecraft.getMinecraft().displayHeight;
-        Mat4 projmat = Glm.perspective_(((float) mouseX/sizeW)*((float)Math.PI), 1.0f, 0.05F, 10.0F);
+        Mat4 projmat = Glm.perspective_(70.0f/180.0f*((float)Math.PI), 1.0f, 0.05F, 10.0F);
 
         Stack<Mat4> matrixStack = new Stack<>();
         matrixStack.push(new Mat4());
 
-        float cubeSize=2.0f;//1.0f;//sizeW/4.0f;
+        float cubeSize=0.5f;//1.0f;//sizeW/4.0f;
         for (int j = 0; j < 1; ++j)
         {
-            matrixStack.push(matrixStack.peek().mul(new Mat4()));
+            matrixStack.push(new Mat4().mul(matrixStack.peek()));
 
             float f = ((float)(j % 8) / 8.0F - 0.5F) / 64.0F;
             float f1 = ((float)(j / 8) / 8.0F - 0.5F) / 64.0F;
@@ -132,24 +132,25 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
                 Vec4 fourthVertice = (modelViewProj.mul(new Vec4(cubeSize,cubeSize,cubeSize,1.0f)));
 
                 Integer[] indexBuffer = new Integer[]{2, 1, 0, 3, 1, 2};
+                float zOffset=1.0f;//(((float) mouseX/sizeW)-0.5f)*2.0f*2.0f;
                 NovaDraw.Vertex[] vertices = new NovaDraw.Vertex[]{
                         new NovaDraw.Vertex(
-                                firstVertice.x, firstVertice.y,firstVertice.z,
+                                firstVertice.x, firstVertice.y,firstVertice.z+zOffset,
                                 0, 0,
                                 vertexColor
                         ),
                         new NovaDraw.Vertex(
-                                secondVertice.x, secondVertice.y,secondVertice.z,
+                                secondVertice.x, secondVertice.y,secondVertice.z+zOffset,
                                 1, 0,
                                 vertexColor
                         ),
                         new NovaDraw.Vertex(
-                                thirdVertice.x, thirdVertice.y,thirdVertice.z,
+                                thirdVertice.x, thirdVertice.y,thirdVertice.z+zOffset,
                                 0, 1,
                                 vertexColor
                         ),
                         new NovaDraw.Vertex(
-                                fourthVertice.x, fourthVertice.y,fourthVertice.z,
+                                fourthVertice.x, fourthVertice.y,fourthVertice.z+zOffset,
                                 1, 1,
                                 vertexColor
                         )

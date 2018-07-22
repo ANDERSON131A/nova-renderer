@@ -167,6 +167,8 @@ namespace nova {
 
         glm::mat4x4 gui_model;
 
+        glm::mat4x4 panorama_model;
+
         /**
          * Private functions
          */

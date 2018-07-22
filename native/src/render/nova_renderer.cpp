@@ -27,6 +27,7 @@
 #include <easylogging++.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <nova/profiler.h>
+#include <chrono>
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -548,6 +549,7 @@ namespace nova {
         switch(renderable.type) {
             case geometry_type::gui:    // Updated separately
             case geometry_type::text:   // Updated separately
+            case geometry_type::panorama:    // Updated separately
             case geometry_type::block:  // These don't change at runtime and it's fine
                 break;
             default:
@@ -566,6 +568,11 @@ namespace nova {
         gui_model = glm::translate(gui_model, glm::vec3(-1.0f, -1.0f, 0.0f));
         gui_model = glm::scale(gui_model, glm::vec3(scalefactor, scalefactor, 1.0f));
         gui_model = glm::scale(gui_model, glm::vec3(1.0 / view_width, 1.0 / view_height, 1.0));
+        int64_t millisecondsToTurn = 5000;
+        float durationOfRotation=static_cast<float>(millisecondsToTurn);
+        float now = 0.0f;//static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()%millisecondsToTurn);
+        panorama_model = glm::mat4(1.0f);
+        panorama_model = glm::rotate(panorama_model, glm::radians(360.0f/durationOfRotation*now), {0, 1, 0});
 
         try {
             if(!meshes) {
@@ -581,6 +588,10 @@ namespace nova {
             std::vector<render_object> &gui_text_objexts = meshes->get_meshes_for_material("gui_text");
             for(const auto &gui_obj : gui_text_objexts) {
                 update_gui_model_matrix(gui_obj, gui_model, device);
+            }
+            std::vector<render_object> &panorama_objects = meshes->get_meshes_for_material("panorama");
+            for(const auto &gui_obj : panorama_objects) {
+                update_gui_model_matrix(gui_obj, panorama_model, device);
             }
         } catch(std::exception& e) {
             LOG(WARNING) << "Load some GUIs you fool";
@@ -611,4 +622,3 @@ namespace nova {
         }
     }
 }
-
