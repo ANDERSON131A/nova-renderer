@@ -13,6 +13,8 @@
 #include <functional>
 #include <unordered_map>
 #include <queue>
+#include <set>
+#include <unordered_set>
 #include "../render_object.h"
 #include "../../../mc_interface/mc_gui_objects.h"
 #include "../../../mc_interface/mc_objects.h"
@@ -98,8 +100,10 @@ namespace nova {
          *
          * We need to be careful with removing geometry so that we don't try to delete a descriptor set while it's in
          * use
+         *
+         * This is a map from material name to a list of all removal predicates for geometry with that material name
          */
-        std::queue<std::function<bool(render_object&)>> geometry_to_remove;
+        std::unordered_map<std::string, std::vector<std::function<bool(render_object&)>>> geometry_to_remove;
 
         float seconds_spent_updating_chunks = 0;
         long total_chunks_updated = 0;
