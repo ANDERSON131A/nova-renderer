@@ -119,6 +119,8 @@ namespace nova {
 
         player_camera.recalculate_frustum();
 
+        update_nova_ubos();
+
         swapchain->aqcuire_next_swapchain_image(swapchain_image_acquire_semaphore);
 
         context->device.resetFences({render_done_fence});
@@ -129,10 +131,6 @@ namespace nova {
 
         vk::CommandBufferBeginInfo cmd_buf_begin_info = {};
         main_command_buffer.buffer.begin(cmd_buf_begin_info);
-
-        player_camera.recalculate_frustum();
-
-        update_nova_ubos();
 
         LOG(TRACE) << "We have " << passes_list.size() << " passes to render";
         for (const auto &pass : passes_list) {
@@ -164,7 +162,6 @@ namespace nova {
         auto fence_wait_result = context->device.waitForFences({render_done_fence}, true, std::numeric_limits<uint64_t>::max());
         if (fence_wait_result == vk::Result::eSuccess) {
             // Process geometry updates
-            meshes->remove_gui_render_objects();
             meshes->remove_old_geometry();
             meshes->upload_new_geometry();
 
@@ -351,22 +348,22 @@ namespace nova {
     }
 
     void nova_renderer::render_mesh(const render_object &mesh, vk::CommandBuffer &buffer, pipeline_object &pipeline_data, std::string per_model_buffer_resource) {
-        LOG(TRACE) << "Rendering a mesh" << std::endl;
+        LOG(TRACE) << "Rendering mesh " << mesh.id;
         NOVA_PROFILER_SCOPE;
-        LOG(TRACE) << "Instantiated profiler object" << std::endl;
+        LOG(TRACE) << "Instantiated profiler object";
         const auto& descriptor = pipeline_data.resource_bindings[per_model_buffer_resource];
-        LOG(TRACE) << "Got the resource binding for " << per_model_buffer_resource << std::endl;
+        LOG(TRACE) << "Got descriptor set "<< (VkDescriptorSet)mesh.model_matrix_descriptor << " for " << per_model_buffer_resource;
         buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline_data.layout, descriptor.set, 1, &mesh.model_matrix_descriptor, 0, nullptr);
-        LOG(TRACE) << "Told the command buffer to bind descriptor (set=" << descriptor.set << " binding=" << descriptor.binding << std::endl;
+        LOG(TRACE) << "Told the command buffer to bind descriptor (set=" << descriptor.set << " binding=" << descriptor.binding;
 
         buffer.bindIndexBuffer(mesh.geometry->indices, {0}, vk::IndexType::eUint32);
-        LOG(TRACE) << "Bound index buffer " << (VkBuffer)mesh.geometry->indices << std::endl;
+        LOG(TRACE) << "Bound index buffer " << (VkBuffer)mesh.geometry->indices;
 
         buffer.bindVertexBuffers(0, {mesh.geometry->vertex_buffer}, {0});
-        LOG(TRACE) << "Bound vertex buffer " << (VkBuffer)mesh.geometry->vertex_buffer << std::endl;
+        LOG(TRACE) << "Bound vertex buffer " << (VkBuffer)mesh.geometry->vertex_buffer;
 
         buffer.drawIndexed(mesh.geometry->num_indices, 1, 0, 0, 0);
-        LOG(TRACE) << "Issued drawcall for " << mesh.geometry->num_indices << " indices" << std::endl;
+        LOG(TRACE) << "Issued drawcall for " << mesh.geometry->num_indices << " indices";
     }
 
     bool nova_renderer::should_end() {
@@ -612,7 +609,6 @@ namespace nova {
         // The per-model uniforms buffer is constantly mapped, so we can just grab the mapping from it
         auto& allocation = shader_resources->get_uniform_buffers().get_per_model_buffer()->get_allocation_info();
         memcpy(((uint8_t*)allocation.pMappedData) + gui_obj.per_model_buffer_range.offset, &model_matrix, gui_obj.per_model_buffer_range.range);
-        LOG(TRACE) << "Copied the GUI data to the buffer" << std::endl;
     }
 
     void nova_renderer::insert_special_geometry(const std::unordered_map<std::string, std::vector<material_pass>> &material_passes_by_pipeline) {

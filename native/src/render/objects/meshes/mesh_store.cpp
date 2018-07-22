@@ -89,40 +89,53 @@ namespace nova {
     }
 
     void mesh_store::remove_render_objects(std::function<bool(render_object&)> filter) {
-        for(auto& item : geometry_to_remove) {
-            auto list = item.second;
-            list.push_back(filter);
+        for(auto& item : renderables_grouped_by_material) {
+            LOG(TRACE) << "Adding a filter for material " << item.first;
+            geometry_to_remove[item.first].push_back(filter);
         }
     }
 
     void mesh_store::remove_old_geometry() {
         auto per_model_buffer = shader_resources->get_uniform_buffers().get_per_model_buffer();
 
+        LOG(INFO) << "We have " << geometry_to_remove.size() << " removal predicates";
+
         for(const auto& filters_by_material : geometry_to_remove) {
-            if(renderables_grouped_by_material.find(filters_by_material.first) == renderables_grouped_by_material.end()) {
-                LOG(DEBUG) << "Tried to remove render objects for material " << filters_by_material.first
+            const auto& material_name = filters_by_material.first;
+            if(renderables_grouped_by_material.find(material_name) == renderables_grouped_by_material.end()) {
+                LOG(WARNING) << "Tried to remove render objects for material " << material_name
                            << " but none were found. Are you sure you want to remove things for that material?";
                 continue;
             }
 
-            auto& renderables_for_material = renderables_grouped_by_material.at(filters_by_material.first);
+            auto& renderables_for_material = renderables_grouped_by_material.at(material_name);
             const auto& filters = filters_by_material.second;
             for(const auto& filter : filters) {
+                LOG(TRACE) << "Before removing things there are " << renderables_for_material.size()
+                           << " renderables for material " << material_name;
                 auto removed_elements_iter = std::remove_if(renderables_for_material.begin(), renderables_for_material.end(), filter);
+                auto resource_free_iter = removed_elements_iter;
 
-                while(removed_elements_iter != renderables_for_material.end()) {
-                    LOG(TRACE) << "Removing resources for render object " << (*removed_elements_iter).id;
+                while(resource_free_iter != renderables_for_material.end()) {
+                    LOG(INFO) << "Removing resources for render object " << resource_free_iter->id;
 
-                    per_model_buffer->free_allocation(removed_elements_iter->per_model_buffer_range);
-                    shader_resources->free_descriptor(removed_elements_iter->model_matrix_descriptor);
+                    per_model_buffer->free_allocation(resource_free_iter->per_model_buffer_range);
+                    shader_resources->free_descriptor(resource_free_iter->model_matrix_descriptor);
 
-                    ++removed_elements_iter;
+                    ++resource_free_iter;
                 }
 
                 renderables_for_material.erase(removed_elements_iter, renderables_for_material.end());
+                LOG(TRACE) << "After removing things there are " << renderables_for_material.size()
+                           << " renderables for material " << material_name;
             }
 
-            renderables_grouped_by_material[filters_by_material.first] = renderables_for_material;
+            renderables_grouped_by_material[material_name] = renderables_for_material;
+        }
+
+        for(const auto& renderables_for_material : renderables_grouped_by_material) {
+            LOG(TRACE) << "Final count: " << renderables_for_material.second.size() << " renderables for material "
+                                                                                       << renderables_for_material.first;
         }
 
         geometry_to_remove.clear();
