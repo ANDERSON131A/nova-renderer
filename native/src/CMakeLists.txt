@@ -21,7 +21,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_BUILD_TYPE DEBUG)
+set(CMAKE_BUILD_TYPE RELEASE)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR})
 
@@ -38,13 +38,17 @@ set(BUILD_ICD OFF)
 
 set(SHADERC_SKIP_TESTS TRUE)
 
+set(EASY_PROFILER_NO_GUI ON)
+
+# glslang is actual garbage and doesn't like being a shared library
+set(BUILD_SHARED_LIBS OFF)
+add_subdirectory(${3RD_PARTY_DIR}/spirv-headers)
+add_subdirectory(${3RD_PARTY_DIR}/spirv-tools)
+add_subdirectory(${3RD_PARTY_DIR}/glslang)
+
+# DLLs make my life easy
 set(BUILD_SHARED_LIBS TRUE)
 
-set(EASY_PROFILER_NO_GUI ON)
-set(ENABLE_GLSLANG_INSTALL OFF)
-set(SKIP_GLSLANG_INSTALL ON)
-
-# need to compile GLFW and JSON
 add_subdirectory(${3RD_PARTY_DIR}/glfw)
 add_subdirectory(${3RD_PARTY_DIR}/json)
 add_subdirectory(${3RD_PARTY_DIR}/glm)
@@ -52,11 +56,8 @@ add_subdirectory(${3RD_PARTY_DIR}/easyloggingpp)
 add_subdirectory(${3RD_PARTY_DIR}/miniz)
 add_subdirectory(${3RD_PARTY_DIR}/googletest)
 add_subdirectory(${3RD_PARTY_DIR}/Optional)
-add_subdirectory(${3RD_PARTY_DIR}/spirv-headers)
-add_subdirectory(${3RD_PARTY_DIR}/spirv-tools)
-add_subdirectory(${3RD_PARTY_DIR}/glslang)
-add_subdirectory(${3RD_PARTY_DIR}/shaderc)
 add_subdirectory(${3RD_PARTY_DIR}/profiler)
+add_subdirectory(${3RD_PARTY_DIR}/shaderc)
 
 include_directories(SYSTEM
         $ENV{VULKAN_SDK}/include
