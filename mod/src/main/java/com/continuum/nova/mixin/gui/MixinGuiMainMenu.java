@@ -104,7 +104,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
                 //matrixStack.peek().translate(0.0f,0.0F, -shift);
                 if (k == 1)
                 {
-                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
+                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
                 }
 
@@ -116,7 +116,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
 
                 if (k == 3)
                 {
-                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
+                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
 
                 }
 

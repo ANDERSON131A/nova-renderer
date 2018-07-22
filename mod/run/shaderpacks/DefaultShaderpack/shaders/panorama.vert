@@ -65,16 +65,16 @@ void main() {
     float w=854.0f;
     float h=480.0f;
     float a=w/h;
-    float fov=3.14159265*90.0/180.0;
+    float fov=3.14159265*60.0/180.0;
     float d=1.0f/tan(fov/2.0f);
     float n=0.5f;
     float f=5.0f;
     mat4 m;
     m[0] = vec4(d/a,0.0f,0.0f,0.0f); // sets the first column
     m[1] = vec4(0.0f,d,0.0f,0.0f); // sets the second column
-    m[2] = vec4(0.0f,0.0f,(n+f)/(n-f),1.0f); // sets the third column
-    m[3] = vec4(0.0f,0.0f,(2.0f*n*f)/(n-f),0.0f); // sets the fourth column
-    vec4 test = m*vec4(position_in,1.0f);
+    m[2] = vec4(0.0f,0.0f,(n+f)/(f-n),(n*f)/(f-n)); // sets the third column
+    m[3] = vec4(0.0f,0.0f,1.0f,0.0f); // sets the fourth column
+    vec4 test = m*vec4(vec3(position_in.xy,1.0f),1.0f);
     gl_Position=vec4(vec3(test.xy,1.0f),1.0f);
     uv = uv_in;
     color = color_in;
