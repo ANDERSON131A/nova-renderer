@@ -245,7 +245,7 @@ namespace nova {
         }
         cur_swapchain_index = result.value;
 
-        LOG(INFO) << "Acquired swapchain image " << cur_swapchain_index;
+        LOG(TRACE) << "Acquired swapchain image " << cur_swapchain_index;
     }
 
     void swapchain_manager::set_current_layout(vk::ImageLayout new_layout) {
@@ -253,7 +253,6 @@ namespace nova {
     }
 
     vk::Framebuffer swapchain_manager::get_current_framebuffer() {
-        LOG(INFO) << "Getting swapchain framebuffer " << cur_swapchain_index << " out of " << framebuffers.size();
         return framebuffers[cur_swapchain_index];
     }
 

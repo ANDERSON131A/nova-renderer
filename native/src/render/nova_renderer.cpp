@@ -268,9 +268,9 @@ namespace nova {
             const auto& textures = shader_resources->get_texture_manager();
             LOG(TRACE) << "Updating " << texture_outputs.size() << " textures" << std::endl;
             for(const auto& attachment : texture_outputs) {
-                LOG(ERROR) << "Updating texture " << attachment.name << std::endl;
+                LOG(TRACE) << "Updating texture " << attachment.name << std::endl;
                 if(textures.is_texture_known(attachment.name)) {
-                    LOG(INFO) << "Updating layout on " << attachment.name << std::endl;
+                    LOG(TRACE) << "Updating layout on " << attachment.name << std::endl;
                     auto &tex = shader_resources->get_texture_manager().get_texture(attachment.name);
                     tex.set_layout(vk::ImageLayout::eColorAttachmentOptimal);
                 }
@@ -612,7 +612,7 @@ namespace nova {
         // The per-model uniforms buffer is constantly mapped, so we can just grab the mapping from it
         auto& allocation = shader_resources->get_uniform_buffers().get_per_model_buffer()->get_allocation_info();
         memcpy(((uint8_t*)allocation.pMappedData) + gui_obj.per_model_buffer_range.offset, &model_matrix, gui_obj.per_model_buffer_range.range);
-        LOG(INFO) << "Copied the GUI data to the buffer" << std::endl;
+        LOG(TRACE) << "Copied the GUI data to the buffer" << std::endl;
     }
 
     void nova_renderer::insert_special_geometry(const std::unordered_map<std::string, std::vector<material_pass>> &material_passes_by_pipeline) {

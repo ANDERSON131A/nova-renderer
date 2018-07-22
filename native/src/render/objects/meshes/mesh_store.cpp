@@ -180,7 +180,7 @@ namespace nova {
                                (static_cast<int>(obj.position.y) == static_cast<int>(chunk.y)) &&
                                (static_cast<int>(obj.position.z) == static_cast<int>(chunk.z));
                     if (del) {
-                        remove_render_objects([&](render_object& obj2) ->bool{ return obj2.id == obj.id; });
+                        remove_render_objects(filter_name, [&](render_object& obj2) ->bool{ return obj2.id == obj.id; });
                     }
                 }
             }
@@ -291,5 +291,9 @@ namespace nova {
         geometry_to_upload_lock.unlock();
 
         has_fullscreen_quad[material_name] = true;
+    }
+
+    void mesh_store::remove_render_objects(std::string material_name, std::function<bool(render_object &)> filter) {
+        geometry_to_remove[material_name].push_back(filter);
     }
 }

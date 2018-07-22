@@ -119,6 +119,8 @@ namespace nova {
         void remove_render_objects(std::function<bool(render_object&)> filter);
 
         std::unordered_map<std::string, bool> has_fullscreen_quad;
+
+        void remove_render_objects(std::string material_name, std::function<bool(render_object & )> filter);
     };
 
 }
