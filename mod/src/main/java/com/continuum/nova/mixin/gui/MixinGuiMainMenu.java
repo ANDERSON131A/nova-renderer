@@ -85,7 +85,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
         //matrixStack.peek().rotate(180.0F, 1.0F, 0.0F, 0.0F);
         //matrixStack.peek().rotate(90.0F, 0.0F, 0.0F, 1.0F);
 
-        float cubeSize=1.0f;//sizeW/4.0f;
+        float cubeSize=2.0f;//1.0f;//sizeW/4.0f;
         for (int j = 0; j < 1; ++j)
         {
             matrixStack.push(matrixStack.peek().mul(new Mat4()));

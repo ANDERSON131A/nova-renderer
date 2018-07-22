@@ -65,10 +65,10 @@ void main() {
     float w=854.0f;
     float h=480.0f;
     float a=w/h;
-    float fov=3.14159265*60.0/180.0;
+    float fov=3.14159265*120.0/180.0;
     float d=1.0f/tan(fov/2.0f);
-    float n=0.5f;
-    float f=5.0f;
+    float n=0.05f;
+    float f=10.0f;
     mat4 m;
     m[0] = vec4(d/a,0.0f,0.0f,0.0f); // sets the first column
     m[1] = vec4(0.0f,d,0.0f,0.0f); // sets the second column
