@@ -74,7 +74,7 @@ void main() {
     m[1] = vec4(0.0f,d,0.0f,0.0f);                  // sets the second column
     m[2] = vec4(0.0f,0.0f,-(n+f)/(f-n),-1.0f); // sets the third column
     m[3] = vec4(0.0f,0.0f,-(2*n*f)/(f-n),0.0f);               // sets the fourth column
-    vec4 test = m*(vec4(position_in,1.0f));
+    vec4 test = gbufferModel*vec4(position_in,1.0f);
     gl_Position=vec4(vec3(test.xy,1.0f),1.0f);
     uv = uv_in;
     color = color_in;

@@ -571,9 +571,23 @@ namespace nova {
         int64_t millisecondsToTurn = 5000;
         float durationOfRotation=static_cast<float>(millisecondsToTurn);
         float now = 0.0f;//static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()%millisecondsToTurn);
-        panorama_model = glm::mat4(1.0f);
-        panorama_model = glm::rotate(panorama_model, glm::radians(360.0f/durationOfRotation*now), {0, 1, 0});
+        //panorama_model = glm::mat4(1.0f);
+        //panorama_model = glm::rotate(panorama_model, glm::radians(360.0f/durationOfRotation*now), {0, 1, 0});
+        // Skybox
+		glm::mat4 viewMatrix = glm::mat4(1.0f);
+        glm::mat4 View = glm::lookAt(
+            glm::vec3(0,0,0), // Camera is at (0,0,0), in World Space
+            glm::vec3(0,-1,0), // and looks at (0,-1,0)
+            glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+            );
+		glm::mat4 Projection = glm::perspective(glm::radians(60.0f), view_width / view_height, 0.001f, 256.0f);
 
+		glm::mat4 Model = glm::mat4(1.0f);
+		Model = viewMatrix * glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
+		Model = glm::rotate(Model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		Model = glm::rotate(Model, glm::radians(360.0f/durationOfRotation*now), glm::vec3(0.0f, 1.0f, 0.0f));
+		Model = glm::rotate(Model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        panorama_model = Projection * View * Model;
         try {
             if(!meshes) {
                 LOG(ERROR) << "oh no the mesh store is not initialized";

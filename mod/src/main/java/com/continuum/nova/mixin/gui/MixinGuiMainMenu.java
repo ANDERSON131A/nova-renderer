@@ -21,6 +21,7 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.Stack;
 import glm.Glm;
+import glm.vec._3.Vec3;
 import glm.mat._4.Mat4;
 import glm.vec._4.Vec4;
 
@@ -75,10 +76,14 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
     @Overwrite
     private void drawPanorama(int mouseX, int mouseY, float partialTicks)
     {
-        float sizeW=(float) Minecraft.getMinecraft().displayWidth;
-        float sizeH=(float) Minecraft.getMinecraft().displayHeight;
-        Mat4 projmat = Glm.perspective_(70.0f/180.0f*((float)Math.PI), 1.0f, 0.05F, 10.0F);
-
+        float sizeW=((float) this.width)/2.0f;//(float) this.width;
+        float sizeH=((float) this.width)/2.0f;//(float) this.height;
+        //assume righthanded it camara turns counter clockwise from above
+        Vec3 lookto=new Vec3(-MathHelper.sin(((float)this.panoramaTimer + partialTicks) * 2.0F/180.0F*((float)Math.PI)),0.0f*Math.tan(((((float)this.panoramaTimer + partialTicks) * 0.0F)%45.0F)/180.0F*((float)Math.PI)),MathHelper.cos(((float)this.panoramaTimer + partialTicks) * 2.0F/180.0F*((float)Math.PI)));
+        Mat4 lookmat = Glm.lookAt_(new Vec3(0.0f,0.0f,0.0f),lookto,new Vec3(0.0f,1.0f,0.0f));
+        Mat4 projmat = Glm.perspective_(120.0f/180.0f*((float)Math.PI), sizeW/sizeH, 0.05F, 20.0F);
+        projmat=new Mat4().mul(lookmat);//projmat.mul(lookmat);//lookmat.mul(projmat);
+        lookmat=new Mat4();
         Stack<Mat4> matrixStack = new Stack<>();
         matrixStack.push(new Mat4());
 
@@ -91,14 +96,14 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
             float f1 = ((float)(j / 8) / 8.0F - 0.5F) / 64.0F;
             float f2 = 0.0F;
             //matrixStack.peek().translate(f, f1, 0.0F);
-            matrixStack.peek().rotate((MathHelper.sin(((float)this.panoramaTimer + partialTicks) / 400.0F) * 25.0F/180.0F*((float)Math.PI) + 20.0F/180.0F*((float)Math.PI)), 1.0F, 0.0F, 0.0F);
-            matrixStack.peek().rotate(-((float)this.panoramaTimer + partialTicks) * 0.1F/180.0F*((float)Math.PI)*100.0f, 0.0F, 1.0F, 0.0F);
+            //matrixStack.peek().rotate((MathHelper.sin(((float)this.panoramaTimer + partialTicks) / 400.0F) * 0.0F/180.0F*((float)Math.PI) + 90.0F/180.0F*((float)Math.PI)), 1.0F, 0.0F, 0.0F);
+            //matrixStack.peek().rotate(-((float)this.panoramaTimer + partialTicks) * 0.1F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
             for (int k = 0; k <6; ++k)
             {
-                matrixStack.push(new Mat4().mul(matrixStack.peek()));
+                matrixStack.push(new Mat4());//.mul(matrixStack.peek()));
                 if (k == 1)
                 {
-                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
+                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
                 }
 
                 if (k == 2)
@@ -108,49 +113,62 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
 
                 if (k == 3)
                 {
-                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
+                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 0.0F, 1.0F, 0.0F);
                 }
 
                 if (k == 4)
                 {
-                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 1.0F, 0.0F, 0.0F);
+                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 1.0F, 0.0F, 0.0F);
                 }
 
                 if (k == 5)
                 {
-                    matrixStack.peek().rotate(-90.0F/180.0F*((float)Math.PI), 1.0F, 0.0F, 0.0F);
+                    matrixStack.peek().rotate(90.0F/180.0F*((float)Math.PI), 1.0F, 0.0F, 0.0F);
                 }
 
 
                 int l = 255 / (j + 1);
                 Color vertexColor = new Color(255, 255, 255, 255);
-
+                //float zOffset=MathHelper.sin(((float)this.panoramaTimer + partialTicks) / 40.0F)-1.0f;
+                float zOffset=0.0f;//MathHelper.sin(((float)this.panoramaTimer + partialTicks) / 40.0F);//-1.0f;//(((float) mouseX)-((float) mouseY))/10.0f;//5.0f;//(((float) mouseX/sizeW)-0.5f)*2.0f*2.0f;
                 Mat4 modelViewProj = matrixStack.peek();
-                Vec4 firstVertice = (modelViewProj.mul(new Vec4(-cubeSize,-cubeSize,cubeSize,1.0f)));
-                Vec4 secondVertice = (modelViewProj.mul(new Vec4(cubeSize,-cubeSize,cubeSize,1.0f)));
-                Vec4 thirdVertice = (modelViewProj.mul(new Vec4(-cubeSize,cubeSize,cubeSize,1.0f)));
-                Vec4 fourthVertice = (modelViewProj.mul(new Vec4(cubeSize,cubeSize,cubeSize,1.0f)));
-
+                Vec4 fiVM=modelViewProj.mul(new Vec4(-cubeSize,-cubeSize,-cubeSize,1.0f));
+                Vec4 seVM=modelViewProj.mul(new Vec4(cubeSize,-cubeSize,-cubeSize,1.0f));
+                Vec4 thVM=modelViewProj.mul(new Vec4(-cubeSize,cubeSize,-cubeSize,1.0f));
+                Vec4 foVM=modelViewProj.mul(new Vec4(cubeSize,cubeSize,-cubeSize,1.0f));
+                float shiftM=0.0f;
+                Vec4 trans=new Vec4(0.0f+lookto.x/lookto.length()*shiftM,0.5f*0.0f+lookto.y/lookto.length()*shiftM,-12.0f+lookto.z/lookto.length()*shiftM,0.0f);
+                Vec4 firstVertice = (projmat.mul(new Vec4(trans.x+fiVM.x,trans.y+fiVM.y,trans.z+fiVM.z,1.0f)));
+                Vec4 secondVertice = (projmat.mul(new Vec4(trans.x+seVM.x,trans.y+seVM.y,trans.z+seVM.z,1.0f)));
+                Vec4 thirdVertice = (projmat.mul(new Vec4(trans.x+thVM.x,trans.y+thVM.y,trans.z+thVM.z,1.0f)));
+                Vec4 fourthVertice = (projmat.mul(new Vec4(trans.x+foVM.x,trans.y+foVM.y,trans.z+foVM.z,1.0f)));
+                /*firstVertice = projmat.mul(new Vec4(firstVertice.x,firstVertice.y,firstVertice.z,1.0f));
+                secondVertice = projmat.mul(new Vec4(secondVertice.x,secondVertice.y,secondVertice.z,1.0f));
+                thirdVertice = projmat.mul(new Vec4(thirdVertice.x,thirdVertice.y,thirdVertice.z,1.0f));
+                fourthVertice = projmat.mul(new Vec4(fourthVertice.x,fourthVertice.y,fourthVertice.z,1.0f));*/
                 Integer[] indexBuffer = new Integer[]{2, 1, 0, 3, 1, 2};
-                float zOffset=1.0f;//(((float) mouseX/sizeW)-0.5f)*2.0f*2.0f;
+                if(j==1){
+                    indexBuffer = new Integer[]{0, 1, 2, 2, 1, 3};
+                }
+                //float zOffset=(((float) mouseX)-((float) mouseY))/10.0f;
                 NovaDraw.Vertex[] vertices = new NovaDraw.Vertex[]{
                         new NovaDraw.Vertex(
-                                firstVertice.x, firstVertice.y,firstVertice.z+zOffset,
+                                firstVertice.x, firstVertice.y,firstVertice.z,
                                 0, 0,
                                 vertexColor
                         ),
                         new NovaDraw.Vertex(
-                                secondVertice.x, secondVertice.y,secondVertice.z+zOffset,
+                                secondVertice.x, secondVertice.y,secondVertice.z,
                                 1, 0,
                                 vertexColor
                         ),
                         new NovaDraw.Vertex(
-                                thirdVertice.x, thirdVertice.y,thirdVertice.z+zOffset,
+                                thirdVertice.x, thirdVertice.y,thirdVertice.z,
                                 0, 1,
                                 vertexColor
                         ),
                         new NovaDraw.Vertex(
-                                fourthVertice.x, fourthVertice.y,fourthVertice.z+zOffset,
+                                fourthVertice.x, fourthVertice.y,fourthVertice.z,
                                 1, 1,
                                 vertexColor
                         )
@@ -179,7 +197,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
         this.drawPanorama(mouseX, mouseY, partialTicks);
         //GlStateManager.enableAlpha();
 
-        int titleStartPosX = this.width / 2 - 137;
+        //int titleStartPosX = this.width / 2 - 137;
         // todo: MINCERAFT (not a typo)
         /*if ((double)this.minceraftRoll < 1.0E-4D)
         {
@@ -190,7 +208,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
             this.drawTexturedModalRect(titleStartPosX + 155, 30, 0, 45, 155, 44);
         }
         else*/
-        NovaDraw.incrementZ();
+        /*NovaDraw.incrementZ();
         {
             // Minecraft logo
             NovaDraw.drawRectangle(
@@ -244,7 +262,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
             }
         }
 
-        this.drawString(this.fontRenderer, "Copyright Mojang AB. Do not distribute!", this.widthCopyrightRest, this.height - 10, -1);
+        this.drawString(this.fontRenderer, "Copyright Mojang AB. Do not distribute!", this.widthCopyrightRest, this.height - 10, -1);*/
 
         /*
         if (mouseX > this.widthCopyrightRest && mouseX < this.widthCopyrightRest + this.widthCopyright && mouseY > this.height - 10

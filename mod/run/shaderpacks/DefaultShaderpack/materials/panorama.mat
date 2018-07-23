@@ -2,7 +2,7 @@
     "filter": "geometry_type::panorama",
     "passes": [
         {
-            "pipeline": "panorama",
+            "pipeline": "gui",
             "bindings": {
                 "per_frame_uniforms": "NovaPerFrameUBO",
                 "per_model_uniforms": "NovaPerModelUBO",
