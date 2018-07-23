@@ -28,7 +28,7 @@ public class NovaDraw {
 
     private static final Logger LOG = LogManager.getLogger(NovaRenderer.class);
 
-    private static final float zIncrement = 0.0001f;
+    private static final float zIncrement = 0.001f;
 
     private static float currentZ;
 
@@ -44,7 +44,7 @@ public class NovaDraw {
     private static void clearBuffers() {
         buffers.clear();
         NovaRenderer.getInstance().getNative().clear_gui_buffers();
-        currentZ = 0.5f;
+        currentZ = 0.75f;
     }
 
     public static int getMouseX() {

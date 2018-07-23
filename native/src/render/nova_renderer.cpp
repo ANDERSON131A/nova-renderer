@@ -568,8 +568,6 @@ namespace nova {
         gui_model = glm::translate(gui_model, glm::vec3(-1.0f, -1.0f, 0.0f));
         gui_model = glm::scale(gui_model, glm::vec3(scalefactor, scalefactor, 1.0f));
         gui_model = glm::scale(gui_model, glm::vec3(1.0 / view_width, 1.0 / view_height, 1.0));
-        //gui_model = glm::scale(gui_model, glm::vec3(1.0f, 1.0f, 0.5f));
-        //gui_model = glm::translate(gui_model, glm::vec3(0.0f, 0.0f, 0.0f));
 
 
         // Panorama
@@ -582,15 +580,12 @@ namespace nova {
             glm::vec3(0,-1,0),  // and looks at (0,-1,0)
             glm::vec3(0,1,0)    // Head is up (set to 0,-1,0 to look upside-down)
             );
-		glm::mat4 Projection = glm::perspective(glm::radians(90.0f), view_width / view_height, 0.001f, 4.0f);
-        Projection = glm::scale(Projection, glm::vec3(1.0f, 1.0f, 0.5f));
-        Projection = glm::translate(Projection, glm::vec3(0.0f, 0.0f, 0.5f));
-
-		glm::mat4 Model = glm::mat4(1.0f);
-		Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
-		Model = glm::rotate(Model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		Model = glm::rotate(Model, glm::radians(360.0f/durationOfRotation*now), glm::vec3(0.0f, 1.0f, 0.0f));
-		Model = glm::rotate(Model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    		glm::mat4 Projection = glm::perspective(glm::radians(90.0f), view_width / view_height, 0.001f, 10.0f);
+    		glm::mat4 Model = glm::mat4(1.0f);
+    		Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
+    		Model = glm::rotate(Model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    		Model = glm::rotate(Model, glm::radians(360.0f/durationOfRotation*now), glm::vec3(0.0f, 1.0f, 0.0f));
+    		Model = glm::rotate(Model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         panorama_model = Projection * Model;
         try {
             if(!meshes) {
@@ -609,6 +604,10 @@ namespace nova {
             std::vector<render_object> &gui_text_objexts = meshes->get_meshes_for_material("gui_text");
             for(const auto &gui_obj : gui_text_objexts) {
                 update_gui_model_matrix(gui_obj, gui_model, device);
+            }
+            std::vector<render_object> &panorama_objects = meshes->get_meshes_for_material("panorama");
+            for(const auto &gui_obj : panorama_objects) {
+                update_gui_model_matrix(gui_obj, panorama_model, device);
             }
         } catch(std::exception& e) {
             LOG(WARNING) << "Load some GUIs you fool";
