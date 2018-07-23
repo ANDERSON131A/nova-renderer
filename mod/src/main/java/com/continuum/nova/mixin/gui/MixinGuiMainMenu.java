@@ -87,7 +87,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
         Stack<Mat4> matrixStack = new Stack<>();
         matrixStack.push(new Mat4());
 
-        float cubeSize=0.5f;//1.0f;//sizeW/4.0f;
+        float cubeSize=1.0f;//1.0f;//sizeW/4.0f;
         for (int j = 0; j < 1; ++j)
         {
             matrixStack.push(new Mat4().mul(matrixStack.peek()));
@@ -137,11 +137,11 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
                 Vec4 thVM=modelViewProj.mul(new Vec4(-cubeSize,cubeSize,-cubeSize,1.0f));
                 Vec4 foVM=modelViewProj.mul(new Vec4(cubeSize,cubeSize,-cubeSize,1.0f));
                 float shiftM=0.0f;
-                Vec4 trans=new Vec4(0.0f+lookto.x/lookto.length()*shiftM,0.5f*0.0f+lookto.y/lookto.length()*shiftM,-12.0f+lookto.z/lookto.length()*shiftM,0.0f);
-                Vec4 firstVertice = (projmat.mul(new Vec4(trans.x+fiVM.x,trans.y+fiVM.y,trans.z+fiVM.z,1.0f)));
-                Vec4 secondVertice = (projmat.mul(new Vec4(trans.x+seVM.x,trans.y+seVM.y,trans.z+seVM.z,1.0f)));
-                Vec4 thirdVertice = (projmat.mul(new Vec4(trans.x+thVM.x,trans.y+thVM.y,trans.z+thVM.z,1.0f)));
-                Vec4 fourthVertice = (projmat.mul(new Vec4(trans.x+foVM.x,trans.y+foVM.y,trans.z+foVM.z,1.0f)));
+                Vec4 trans=new Vec4(0.0f);//new Vec4(0.0f+lookto.x/lookto.length()*shiftM,0.5f*0.0f+lookto.y/lookto.length()*shiftM,-12.0f+lookto.z/lookto.length()*shiftM,0.0f);
+                Vec4 firstVertice = ((new Vec4(trans.x+fiVM.x,trans.y+fiVM.y,trans.z+fiVM.z,1.0f)));
+                Vec4 secondVertice = ((new Vec4(trans.x+seVM.x,trans.y+seVM.y,trans.z+seVM.z,1.0f)));
+                Vec4 thirdVertice = ((new Vec4(trans.x+thVM.x,trans.y+thVM.y,trans.z+thVM.z,1.0f)));
+                Vec4 fourthVertice = ((new Vec4(trans.x+foVM.x,trans.y+foVM.y,trans.z+foVM.z,1.0f)));
                 /*firstVertice = projmat.mul(new Vec4(firstVertice.x,firstVertice.y,firstVertice.z,1.0f));
                 secondVertice = projmat.mul(new Vec4(secondVertice.x,secondVertice.y,secondVertice.z,1.0f));
                 thirdVertice = projmat.mul(new Vec4(thirdVertice.x,thirdVertice.y,thirdVertice.z,1.0f));
@@ -197,7 +197,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
         this.drawPanorama(mouseX, mouseY, partialTicks);
         //GlStateManager.enableAlpha();
 
-        //int titleStartPosX = this.width / 2 - 137;
+        int titleStartPosX = this.width / 2 - 137;
         // todo: MINCERAFT (not a typo)
         /*if ((double)this.minceraftRoll < 1.0E-4D)
         {
@@ -208,8 +208,8 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
             this.drawTexturedModalRect(titleStartPosX + 155, 30, 0, 45, 155, 44);
         }
         else*/
-        /*NovaDraw.incrementZ();
-        {
+        NovaDraw.incrementZ();
+
             // Minecraft logo
             NovaDraw.drawRectangle(
                     MINECRAFT_TITLE_TEXTURES,
@@ -221,7 +221,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
                     new Rectangle2D.Float(titleStartPosX + 155, 30, 155, 44),
                     new Rectangle2D.Float(0, 45 / 256f, 0.60546875f, 0.171875f)
             );
-        }
+
 
         NovaDraw.incrementZ();
 
