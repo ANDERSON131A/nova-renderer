@@ -128,7 +128,7 @@ public interface IGeometryFilter {
         public boolean matches(NovaNative.mc_gui_buffer guiBuffer) {
             switch(type) {
                 case GUI:
-                    return guiBuffer.texture_name.contains("gui/")&& !guiBuffer.texture_name.contains("gui/title/background/panorama");
+                    return guiBuffer.texture_name.contains("gui/");
                 case TEXT:
                     return guiBuffer.texture_name.contains("font/");
                 case PANORAMA:
